@@ -1,11 +1,13 @@
 <template>
   <div>
-    <login id="login" :logged="this.isLogged" @statusLogin="changeStatusLogin"></login>
+    <login v-if="!isLogged" id="login" :logged="this.isLogged" @statusLogin="changeStatusLogin"></login>
+    <dashboard v-if="isLogged"></dashboard>
   </div>
 </template>
 
 <script>
 import login from './login.vue'
+import dashboard from "./dashboard.vue";
 export default {
   name: 'rootComponent',
   data(){
@@ -13,12 +15,13 @@ export default {
       isLogged:false,
     }
   },
+
   methods:{
     changeStatusLogin(value){
       this.isLogged=value;
-    }
+    },
   },
-  components:{login}
+  components:{login,dashboard}
 }
 </script>
 

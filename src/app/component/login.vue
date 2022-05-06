@@ -10,7 +10,7 @@
           <label for="password">Password</label>
           <input type="password" v-model="user.password" class="form-control" id="password" placeholder="Password">
         </div>
-        <button type="submit" class="btn btn-primary btn-block" @click="notify(this.isLogged)">Entrar</button>
+        <button type="submit" class="btn btn-primary btn-block" >Entrar</button>
       </form>
     </div>
   </div>
@@ -40,22 +40,20 @@ export default {
           'Content-Type':'application/json'
         }
       }).then( res => res.json())
-          .then(function(data){
-            if(data.status){
-              console.log("OK")
-              this.changeStatus(data.status)
-            }else{
-              console.log("BAD")
-              this.changeStatus(data.status)
-            }
+          .then(this.notify,function(data){
+            console.log("Ha ocurrido un error "+data);
           })
 
     },
-    changeStatus(value){
-      this.isLogged=value;
-    },
-    notify(value){
-      this.$emit('statusLogin',value);
+    notify(data){
+      if(data.status){
+        console.log("OK");
+        this.$emit('statusLogin',true);
+      }else{
+        console.log("BAD")
+      }
+
+      //this.$emit('statusLogin',value);
     }
   }
 }
