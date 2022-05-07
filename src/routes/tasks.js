@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require('../models/User')
 const mysql = require("mysql");
 const database = require('../models/Database');
+
+
 // MySQL
 
 var connection = mysql.createConnection({
@@ -10,16 +12,6 @@ var connection = mysql.createConnection({
     user     : 'tfg',
     password : 'TrabajoTfg.1',
     database : 'tfg'
-})
-
-
-
-
-
-router.get('/login', async(req,res) => {
-    const user = await User.find();
-    console.log(user);
-    res.send(user)
 })
 
 router.post('/login', async(req,res) =>{
@@ -30,7 +22,6 @@ router.post('/login', async(req,res) =>{
     var bdUser = new User(rows[0].username,rows[0].password,false);
     //comprobamos si son iguales
     var iguales = formUser.compareUser(bdUser);
-
 
     res.json({
         status:iguales

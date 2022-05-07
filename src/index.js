@@ -1,7 +1,5 @@
 const express = require('express');
 const morgan = require('morgan');
-const mongoose = require('mongoose');
-var mysql = require('mysql');
 const app = express();
 
 
@@ -16,8 +14,6 @@ app.use(express.json());
 
 // Routes
 app.use( require('./routes/tasks'));
-
-
 
 // Static Files
 app.use(express.static(__dirname+"/public"))
