@@ -16,7 +16,8 @@ export default {
     }
   },
   created() {
-    this.$router.push('/login')
+    //this.$router.push('/login')
+    this.$router.push('/dashboard')
   },
 
   components:{login,dashboard}
@@ -24,9 +25,9 @@ export default {
 </script>
 
 <style scoped>
-#login{
-  width: 300px;
-  margin: 0 auto;
+div {
+  background-color: #eee8e8;
+  padding: 1% 1%;
 }
 
 </style>
