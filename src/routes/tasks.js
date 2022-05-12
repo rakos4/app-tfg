@@ -28,4 +28,21 @@ router.post('/login', async(req,res) =>{
     })
 })
 
+router.post('/addHost', async(req,res) => {
+    console.log(req.body)
+    try {
+        const rows = await database('INSERT INTO hosts (name,ip) VALUES("'+req.body.name+'","'+req.body.ip+'")');
+        res.json({
+            status:true
+        })
+    }catch (e) {
+        console.log("Se ha producido un error: --> "+e);
+        res.json({
+            status:false
+        })
+    }
+
+
+})
+
 module.exports = router;

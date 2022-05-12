@@ -9,14 +9,17 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input v-model="this.name" type="text" class="form-control" id="name" placeholder="Nginx">
-        </div>
-        <div class="form-group">
-          <label for="ip">Example label</label>
-          <input v-model="this.ip" type="text" class="form-control" id="ip" placeholder="192.168.1.59">
-        </div>
+        <form @submit.prevent="addHost">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input v-model="this.name" type="text" class="form-control" id="name" placeholder="Nginx">
+          </div>
+          <div class="form-group">
+            <label for="ip">Example label</label>
+            <input v-model="this.ip" type="text" class="form-control" id="ip" placeholder="192.168.1.59">
+          </div>
+        </form>
+
       </div>
 
       <div class="modal-footer">
@@ -31,9 +34,10 @@
 </template>
 
 <script>
+const Host = require('../../models/Host')
 export default {
   name: "modal",
-  emits: ['closeModal'],
+  emits: ['closeModal','updatePanelHosts'],
   data() {
     return {
       ip: null,
@@ -41,8 +45,28 @@ export default {
     }
   },
   methods: {
+    updateHosts:function (){
+      this.$emit('closeModal');
+      this.$emit('updatePanelHosts');
+    },
     addHost: function (){
-
+      var host = new Host(this.name,this.ip)
+      fetch('/addHost', {
+        method: 'POST',
+        body: JSON.stringify(host),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }).then(res => res.json())
+          .then(data => {
+            if (data.status) {
+              console.log("Host Added")
+              this.updateHosts();
+            } else {
+              console.log("Host wasn't added")
+            }
+          })
     }
   }
 }
