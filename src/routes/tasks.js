@@ -28,6 +28,13 @@ router.post('/login', async(req,res) =>{
     })
 })
 
+router.get('/getHosts',async (req,res) => {
+    const rows = await database('SELECT * FROM hosts');
+    res.json({
+        hosts:rows
+    })
+})
+
 router.post('/addHost', async(req,res) => {
     console.log(req.body)
     try {

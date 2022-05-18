@@ -1,10 +1,10 @@
 <template>
 <div class="row host">
   <div class="col-4">
-    <span>Tomcat</span>
+    <span>{{name}}</span>
   </div>
   <div class="col-6">
-    <span>192.168.1.160</span>
+    <span>{{ip}}</span>
   </div>
   <div id="state" class="col-2"></div>
 
@@ -13,7 +13,8 @@
 
 <script>
 export default {
-  name: "host"
+  name: "host",
+  props:['name','ip']
 }
 </script>
 

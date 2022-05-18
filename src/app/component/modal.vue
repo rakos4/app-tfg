@@ -15,7 +15,7 @@
             <input v-model="this.name" type="text" class="form-control" id="name" placeholder="Nginx">
           </div>
           <div class="form-group">
-            <label for="ip">Example label</label>
+            <label for="ip">Ip Address</label>
             <input v-model="this.ip" type="text" class="form-control" id="ip" placeholder="192.168.1.59">
           </div>
         </form>

@@ -13,13 +13,7 @@
         <h1>Titulo</h1>
       </div>
     </div>
-    <div @updatePanelHosts="updateHosts" class="row">
-      <div id="hosts" class="col-2">
-        <host></host>
-        <host></host>
-      </div>
-    </div>
-
+    <panelHosts :update="this.updateHost" @hostsUpdated="this.updateHost=false"></panelHosts>
     <div id="buttonAddHost" class="row">
       <button type="button" class="btn btn-primary col-2" @click="showModal">Add Host</button>
       <modal v-if="modalOpen" @closeModal="showModal"></modal>
@@ -31,12 +25,13 @@
 
 import host from './host.vue';
 import modal from './modal.vue';
+import panelHosts from "./panelHosts.vue";
 
 export default {
   name: "dashboard",
   data() {
     return {
-      hosts:[],
+      updateHost:false,
       hora: null,
       modalOpen:false
     }
@@ -54,12 +49,10 @@ export default {
     },
     showModal: function (){
       this.modalOpen=!this.modalOpen
+      this.updateHost=true;
     },
-    updateHosts: function (){
-      console.log("hola se ha añadido un nuevo host")
-    }
   },
-  components: {host, modal}
+  components: {host, modal, panelHosts}
 }
 </script>
 
@@ -74,30 +67,7 @@ export default {
   padding: 10px;
 }
 
-#hosts {
-  height: 425px;
-  overflow-y: scroll;
-}
 
-/* width */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #888;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
 
 button {
   margin-top: 10px;
