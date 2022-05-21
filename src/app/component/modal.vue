@@ -26,6 +26,9 @@
         <button type="button" class="btn btn-danger" @click="this.$emit('closeModal')">Cancel</button>
         <button type="button" class="btn btn-primary" @click="addHost">Add Host</button>
       </div>
+      <div v-if="this.error" class="alert alert-danger" role="alert">
+        No se ha podido añadir el host
+      </div>
 
     </div>
 
@@ -41,7 +44,8 @@ export default {
   data() {
     return {
       ip: null,
-      name: null
+      name: null,
+      error:false
     }
   },
   methods: {
@@ -64,7 +68,7 @@ export default {
               console.log("Host Added")
               this.updateHosts();
             } else {
-              console.log("Host wasn't added")
+              this.error=true
             }
           })
     }
@@ -118,6 +122,10 @@ input[type=text] {
 
 .form-group{
   margin-top: 10px;
+}
+
+#error{
+  display: none;
 }
 
 </style>

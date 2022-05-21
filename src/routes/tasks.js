@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User')
 const mysql = require("mysql");
 const database = require('../models/Database');
+const fs = require('fs')
 
 
 // MySQL
@@ -30,6 +31,16 @@ router.post('/login', async(req,res) =>{
 
 router.get('/getHosts',async (req,res) => {
     const rows = await database('SELECT * FROM hosts');
+    for(host in rows){
+        var ip = rows[host].ip
+        fs.appendFile("hosts.txt", ip+"\n", err => {
+            if (err) {
+                console.error(err);
+            }
+        });
+
+    }
+
     res.json({
         hosts:rows
     })
@@ -43,6 +54,21 @@ router.post('/addHost', async(req,res) => {
             status:true
         })
     }catch (e) {
+        console.log("Se ha producido un error: --> "+e);
+        res.json({
+            status:false
+        })
+    }
+})
+
+router.delete('/deleteHost', async (req,res) => {
+    console.log("Host a eliminar: "+req.body.ip)
+    try{
+        const rows = await database('DELETE FROM hosts where ip="'+req.body.ip+'"')
+        res.json({
+            status:true
+        })
+    }catch (e){
         console.log("Se ha producido un error: --> "+e);
         res.json({
             status:false
