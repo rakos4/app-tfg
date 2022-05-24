@@ -4,11 +4,24 @@
       <span v-if="this.hosts.length==0">No hay ningún host añadido</span>
       <host v-for="h in this.hosts" :name="h.name" :ip="h.ip" @updatePanelHosts="updateHosts"></host>
     </div>
+    <!-- Panel ansible -->
+    <div class="col-10">
+      <div class="panelsAnsible row">
+        <ansible-install></ansible-install>
+      </div>
+      <div class="panelsAnsible row">
+        <ansible-install></ansible-install>
+      </div>
+      <div class="panelsAnsible row">
+        <ansible-install></ansible-install>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import host from './host.vue';
+import ansibleInstall from "./ansibleInstall.vue";
 export default {
   name: "panelHosts",
   props:['update'],
@@ -37,7 +50,7 @@ export default {
           })
     }
   },
-  components:{host}
+  components:{host,ansibleInstall}
 }
 </script>
 
@@ -66,6 +79,11 @@ export default {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+.panelsAnsible{
+  border: 3px solid white;
+  padding: 20px;
 }
 
 </style>

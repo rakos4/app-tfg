@@ -38,7 +38,6 @@ router.get('/getHosts',async (req,res) => {
                 console.error(err);
             }
         });
-
     }
 
     res.json({
@@ -74,6 +73,30 @@ router.delete('/deleteHost', async (req,res) => {
             status:false
         })
     }
+})
+
+router.post('/installPackages',async(req,res)=>{
+    console.log(req.body)
+    var result = true;
+    try{
+        fs.unlinkSync("playbook.yml")
+    }catch (e){
+        result=false;
+        console.log(e)
+    }
+    var packages = req.body
+    fs.appendFile("playbook.yml", "---\n", err => console.log(err));
+    fs.appendFile("playbook.yml", "hosts: all\n", err => console.log(err));
+    fs.appendFile("playbook.yml", "tasks:\n", err => console.log(err));
+    for(task in req.body){
+        fs.appendFile("playbook.yml", "- name: Install package "+packages[task]+"\n", err => console.log(err));
+        fs.appendFile("playbook.yml", "apt: name="+packages[task]+" state=present\n", err => console.log(err));
+    }
+
+
+    res.json({
+        state:result
+    })
 
 
 })
