@@ -3,17 +3,22 @@
     <div  id="hosts" class="col-2">
       <span v-if="this.hosts.length==0">No hay ningún host añadido</span>
       <host v-for="h in this.hosts" :name="h.name" :ip="h.ip" @updatePanelHosts="updateHosts"></host>
+      <div id="buttonAddHost" class="row">
+        <button type="button" class="btn btn-primary" @click="showModal">Add Host</button>
+        <modal v-if="modalOpen" @closeModal="showModal"></modal>
+      </div>
     </div>
+
     <!-- Panel ansible -->
     <div class="col-10">
       <div class="panelsAnsible row">
-        <ansible-install></ansible-install>
+        <ansible-install label="Install packages"></ansible-install>
       </div>
       <div class="panelsAnsible row">
-        <ansible-install></ansible-install>
+        <ansible-install label="Restart services"></ansible-install>
       </div>
       <div class="panelsAnsible row">
-        <ansible-install></ansible-install>
+        <ansible-install label="Create your playbook"></ansible-install>
       </div>
     </div>
   </div>
@@ -22,19 +27,16 @@
 <script>
 import host from './host.vue';
 import ansibleInstall from "./ansibleInstall.vue";
+import modal from './modal.vue';
+
 export default {
   name: "panelHosts",
   props:['update'],
   emits:['hostsUpdated'],
   data(){
     return{
-      hosts:[]
-    }
-  },
-  watch:{
-    update(newValue,oldValue){
-      this.updateHosts()
-      this.$emit('hostsUpdated')
+      hosts:[],
+      modalOpen:false
     }
   },
   created() {
@@ -48,9 +50,15 @@ export default {
           .then(data => {
             this.hosts = data['hosts']
           })
-    }
+    },
+    showModal: function (){
+      this.modalOpen=!this.modalOpen
+      this.updateHost=true;
+      this.updateHosts()
+      this.$emit('hostsUpdated')
+    },
   },
-  components:{host,ansibleInstall}
+  components:{host,ansibleInstall,modal}
 }
 </script>
 

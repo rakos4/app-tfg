@@ -3,17 +3,8 @@ const router = express.Router();
 const User = require('../models/User')
 const mysql = require("mysql");
 const database = require('../models/Database');
+const { exec } = require("child_process");
 const fs = require('fs')
-
-
-// MySQL
-
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'tfg',
-    password : 'TrabajoTfg.1',
-    database : 'tfg'
-})
 
 router.post('/login', async(req,res) =>{
     // creamos un usuario con los valores recibidos del formulario
@@ -31,6 +22,11 @@ router.post('/login', async(req,res) =>{
 
 router.get('/getHosts',async (req,res) => {
     const rows = await database('SELECT * FROM hosts');
+    try{
+        fs.unlinkSync("hosts.txt")
+    }catch (e){
+        console.log(e)
+    }
     for(host in rows){
         var ip = rows[host].ip
         fs.appendFile("hosts.txt", ip+"\n", err => {
@@ -75,15 +71,12 @@ router.delete('/deleteHost', async (req,res) => {
     }
 })
 
+//EXECUTIONS OF ANSIBLE
 router.post('/installPackages',async(req,res)=>{
     console.log(req.body)
     var result = true;
-    try{
-        fs.unlinkSync("playbook.yml")
-    }catch (e){
-        result=false;
-        console.log(e)
-    }
+    createPlaybook("Install",req.body)
+    /**
     var packages = req.body
     fs.appendFile("playbook.yml", "---\n", err => console.log(err));
     fs.appendFile("playbook.yml", "hosts: all\n", err => console.log(err));
@@ -91,14 +84,55 @@ router.post('/installPackages',async(req,res)=>{
     for(task in req.body){
         fs.appendFile("playbook.yml", "- name: Install package "+packages[task]+"\n", err => console.log(err));
         fs.appendFile("playbook.yml", "apt: name="+packages[task]+" state=present\n", err => console.log(err));
-    }
+    }**/
 
+    execPlaybook()
 
     res.json({
-        state:result
+        status:result
     })
 
 
 })
+function createPlaybook(mode,packages){
+    try{
+        fs.unlinkSync("playbook.yml")
+        var service = "apt";
+        var state = "present";
+        if(mode=="Restart"){
+            service="service";
+            state = "restarted";
+        }
+        fs.appendFileSync("playbook.yml", "---\n", err => console.log(err));
+        fs.appendFileSync("playbook.yml", "hosts: all\n", err => console.log(err));
+        fs.appendFileSync("playbook.yml", "tasks:\n", err => console.log(err));
+
+        for(task in packages){
+            fs.appendFileSync("playbook.yml", "- name: "+mode+" package "+packages[task]+"\n", err => console.log(err));
+            fs.appendFileSync("playbook.yml", service+": name="+packages[task]+" "+state+"=present\n", err => console.log(err));
+        }
+    }catch (e){
+        result=false;
+        console.log(e)
+    }
+
+
+
+
+}
+
+function execPlaybook(){
+    exec("dir", (error, stdout, stderr) => {
+        if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+    });}
+
 
 module.exports = router;
