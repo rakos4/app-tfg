@@ -74,14 +74,12 @@ router.delete('/deleteHost', async (req, res) => {
 
 //EXECUTIONS OF ANSIBLE
 router.post('/installPackages', async (req, res) => {
-    console.log(req.body)
+
     createPlaybook("Install", req.body)
-    //var result = spawnSync('ansible-playbook playbook.yml', ['-i hosts.txt -u root'],{ encoding: 'utf-8' });
     var result;
     try{
         var result1 = execSync('ansible-playbook -i hosts.txt -u root playbook.yml',{ encoding: 'utf-8' }).toString();
         result = result1.toString().split('\n')
-        //getResultOfExecution(result)
 
     }catch (e){
         result=false
@@ -90,15 +88,23 @@ router.post('/installPackages', async (req, res) => {
     res.json({
         status:result
     })
-})
+});
 
-function getResultOfExecution(data){
+router.post('/restartServices', async (req, res) => {
 
-    var res = data.toString().split('\n')
-    console.log(res.reverse())
+    createPlaybook("Restart", req.body)
+    var result;
+    try{
+        var result1 = execSync('ansible-playbook -i hosts.txt -u root playbook.yml',{ encoding: 'utf-8' }).toString();
+        result = result1.toString().split('\n')
 
-}
-
+    }catch (e){
+        result=false
+    }
+    res.json({
+        status:result
+    })
+});
 
 
 function createPlaybook(mode, packages) {
@@ -112,8 +118,8 @@ function createPlaybook(mode, packages) {
         var service = "    apt";
         var state = "present";
         if (mode == "Restart") {
-            service = "    service:";
-            state = "restarted";
+            service = "    service";
+            state = "stopped";
         }
         fs.appendFileSync("playbook.yml", "---\n", err => console.log(err));
         fs.appendFileSync("playbook.yml", "- hosts: all\n", err => console.log(err));
@@ -138,13 +144,6 @@ function createPlaybook(mode, packages) {
 
 
 
-router.post('/restartServices', async (req, res) => {
-    console.log(req.body)
-    createPlaybook("Restart", req.body)
-    var result = await execPlaybook()
-    console.log("Este es el resultado: " + result)
-    result.then(res => console.log(res))
-    res.send("hola")
-})
+
 
 module.exports = router;

@@ -10,14 +10,17 @@
     <div id="buttonPackage" class="col-1">
       <button type="submit" class="btn btn-primary mb-2">{{this.labelButton}}</button>
     </div>
-    <div v-if="this.error" class="col-12 alert alert-danger" role="alert">
-      Error al instalar los paquetes
+    <div id="errorPackage" v-if="this.error" class="col-12 alert alert-danger" role="alert">
+      <button type="button" class="close closeExec"  aria-label="Close" @click="this.error=false">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <p>{{ this.errorMsg }}</p>
     </div>
-    <div id="resultExec" v-if="this.exec" class="alert alert-success col-12" role="alert">
+    <div id="resultExec" v-if="this.exec" class="alert alert-success col-12"  role="alert">
+      <button type="button" class="close closeExec"  aria-label="Close" @click="this.exec=false">
+        <span aria-hidden="true">&times;</span>
+      </button>
       <p v-for="p in this.dataExec">{{p}}</p>
-    </div>
-    <div id="resultBadExec" v-if="this.badExec" class="alert alert-danger col-12" role="alert">
-      <p>{{this.dataExec}}</p>
     </div>
   </form>
 
@@ -36,7 +39,7 @@ export default {
       textArea:false,
       path:"",
       exec:false,
-      badExec:false,
+      errorMsg:"",
       dataExec:[]
     }
   },
@@ -57,13 +60,18 @@ export default {
   },
   watch: {
     packages(newValue, oldValue) {
-      if (newValue.length != 0) this.error = false
+      if (newValue.length != 0){
+        this.error = false
+        this.exec=false
+      }
     }
   },
   methods: {
     run: function () {
       if (this.packages.length == 0) {
         this.error = true
+        this.errorMsg="El campo no puede estar vacío";
+        this.exec=false
       } else {
         var packagesToInstall = this.packages.split(",");
 
@@ -75,19 +83,25 @@ export default {
             'Content-Type': 'application/json'
           }
         }).then(res => res.json()).then(data => {
-
-          if(data==false){
-            this.badExec=true
-            this.dataExec='Error en la ejecución'
-          }else{
-            this.exec=true
-            this.dataExec=data.status
-          }
-
+          this.showResult(data);
         })
       }
+    },
+    showResult:function(data){
+      console.log(data)
+
+      if(data.status==false){
+        this.error=true
+        this.errorMsg="Error al instalar los paquetes"
+      }else{
+        this.exec=true
+        this.class="alert alert-success col-12";
+        this.style="height: 150px; overflow-y: scroll;"
+        this.dataExec=data.status
+      }
     }
-  }
+  },
+
 }
 </script>
 
@@ -108,6 +122,14 @@ export default {
 #resultExec{
   height: 150px;
   overflow-y: scroll;
+}
+
+.closeExec{
+  position: absolute;
+  right: 25px;
+  background: none;
+  border: none;
+
 }
 
 </style>
