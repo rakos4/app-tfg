@@ -3,33 +3,34 @@ const router = express.Router();
 const User = require('../models/User')
 const mysql = require("mysql");
 const database = require('../models/Database');
-const { exec } = require("child_process");
+const {execSync} = require("child_process");
+const { spawnSync } = require("child_process");
 const fs = require('fs')
 
-router.post('/login', async(req,res) =>{
+router.post('/login', async (req, res) => {
     // creamos un usuario con los valores recibidos del formulario
-    const formUser = new User(req.body.username,req.body.password,true);
+    const formUser = new User(req.body.username, req.body.password, true);
     //obtenemos el usuario de la base de datos
     const rows = await database('SELECT * FROM users');
-    var bdUser = new User(rows[0].username,rows[0].password,false);
+    var bdUser = new User(rows[0].username, rows[0].password, false);
     //comprobamos si son iguales
     var iguales = formUser.compareUser(bdUser);
 
     res.json({
-        status:iguales
+        status: iguales
     })
 })
 
-router.get('/getHosts',async (req,res) => {
+router.get('/getHosts', async (req, res) => {
     const rows = await database('SELECT * FROM hosts');
-    try{
+    try {
         fs.unlinkSync("hosts.txt")
-    }catch (e){
+    } catch (e) {
         console.log(e)
     }
-    for(host in rows){
+    for (host in rows) {
         var ip = rows[host].ip
-        fs.appendFile("hosts.txt", ip+"\n", err => {
+        fs.appendFile("hosts.txt", ip + "\n", err => {
             if (err) {
                 console.error(err);
             }
@@ -37,102 +38,113 @@ router.get('/getHosts',async (req,res) => {
     }
 
     res.json({
-        hosts:rows
+        hosts: rows
     })
 })
 
-router.post('/addHost', async(req,res) => {
+router.post('/addHost', async (req, res) => {
     console.log(req.body)
     try {
-        const rows = await database('INSERT INTO hosts (name,ip) VALUES("'+req.body.name+'","'+req.body.ip+'")');
+        const rows = await database('INSERT INTO hosts (name,ip) VALUES("' + req.body.name + '","' + req.body.ip + '")');
         res.json({
-            status:true
+            status: true
         })
-    }catch (e) {
-        console.log("Se ha producido un error: --> "+e);
+    } catch (e) {
+        console.log("Se ha producido un error: --> " + e);
         res.json({
-            status:false
+            status: false
         })
     }
 })
 
-router.delete('/deleteHost', async (req,res) => {
-    console.log("Host a eliminar: "+req.body.ip)
-    try{
-        const rows = await database('DELETE FROM hosts where ip="'+req.body.ip+'"')
+router.delete('/deleteHost', async (req, res) => {
+    console.log("Host a eliminar: " + req.body.ip)
+    try {
+        const rows = await database('DELETE FROM hosts where ip="' + req.body.ip + '"')
         res.json({
-            status:true
+            status: true
         })
-    }catch (e){
-        console.log("Se ha producido un error: --> "+e);
+    } catch (e) {
+        console.log("Se ha producido un error: --> " + e);
         res.json({
-            status:false
+            status: false
         })
     }
 })
 
 //EXECUTIONS OF ANSIBLE
-router.post('/installPackages',async(req,res)=>{
+router.post('/installPackages', async (req, res) => {
     console.log(req.body)
-    var result = true;
-    createPlaybook("Install",req.body)
-    /**
-    var packages = req.body
-    fs.appendFile("playbook.yml", "---\n", err => console.log(err));
-    fs.appendFile("playbook.yml", "hosts: all\n", err => console.log(err));
-    fs.appendFile("playbook.yml", "tasks:\n", err => console.log(err));
-    for(task in req.body){
-        fs.appendFile("playbook.yml", "- name: Install package "+packages[task]+"\n", err => console.log(err));
-        fs.appendFile("playbook.yml", "apt: name="+packages[task]+" state=present\n", err => console.log(err));
-    }**/
+    createPlaybook("Install", req.body)
+    //var result = spawnSync('ansible-playbook playbook.yml', ['-i hosts.txt -u root'],{ encoding: 'utf-8' });
+    var result;
+    try{
+        var result1 = execSync('ansible-playbook -i hosts.txt -u root playbook.yml',{ encoding: 'utf-8' }).toString();
+        result = result1.toString().split('\n')
+        //getResultOfExecution(result)
 
-    execPlaybook()
+    }catch (e){
+        result=false
+    }
 
     res.json({
         status:result
     })
-
-
 })
-function createPlaybook(mode,packages){
-    try{
-        fs.unlinkSync("playbook.yml")
-        var service = "apt";
+
+function getResultOfExecution(data){
+
+    var res = data.toString().split('\n')
+    console.log(res.reverse())
+
+}
+
+
+
+function createPlaybook(mode, packages) {
+    try {
+        try {
+            fs.unlinkSync("playbook.yml")
+        } catch (e) {
+            console.log("Error al eliminar el fichero")
+        }
+
+        var service = "    apt";
         var state = "present";
-        if(mode=="Restart"){
-            service="service";
+        if (mode == "Restart") {
+            service = "    service:";
             state = "restarted";
         }
         fs.appendFileSync("playbook.yml", "---\n", err => console.log(err));
-        fs.appendFileSync("playbook.yml", "hosts: all\n", err => console.log(err));
-        fs.appendFileSync("playbook.yml", "tasks:\n", err => console.log(err));
+        fs.appendFileSync("playbook.yml", "- hosts: all\n", err => console.log(err));
+        fs.appendFileSync("playbook.yml", "  tasks:\n", err => console.log(err));
 
-        for(task in packages){
-            fs.appendFileSync("playbook.yml", "- name: "+mode+" package "+packages[task]+"\n", err => console.log(err));
-            fs.appendFileSync("playbook.yml", service+": name="+packages[task]+" "+state+"=present\n", err => console.log(err));
+        for (task in packages) {
+            fs.appendFileSync("playbook.yml", "  - name: " + mode + " package " + packages[task] + "\n", err => console.log(err));
+            fs.appendFileSync("playbook.yml", service + ": name=" + packages[task] + " state=" + state + "\n", err => console.log(err));
         }
-    }catch (e){
-        result=false;
+    } catch (e) {
+        result = false;
         console.log(e)
     }
 
 
-
-
 }
 
-function execPlaybook(){
-    exec("dir", (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-    });}
 
+
+
+
+
+
+
+router.post('/restartServices', async (req, res) => {
+    console.log(req.body)
+    createPlaybook("Restart", req.body)
+    var result = await execPlaybook()
+    console.log("Este es el resultado: " + result)
+    result.then(res => console.log(res))
+    res.send("hola")
+})
 
 module.exports = router;

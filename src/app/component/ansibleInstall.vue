@@ -13,7 +13,14 @@
     <div v-if="this.error" class="col-12 alert alert-danger" role="alert">
       Error al instalar los paquetes
     </div>
+    <div id="resultExec" v-if="this.exec" class="alert alert-success col-12" role="alert">
+      <p v-for="p in this.dataExec">{{p}}</p>
+    </div>
+    <div id="resultBadExec" v-if="this.badExec" class="alert alert-danger col-12" role="alert">
+      <p>{{this.dataExec}}</p>
+    </div>
   </form>
+
 </template>
 
 <script>
@@ -27,8 +34,10 @@ export default {
       error: false,
       input:false,
       textArea:false,
-      path:""
-
+      path:"",
+      exec:false,
+      badExec:false,
+      dataExec:[]
     }
   },
   created() {
@@ -65,7 +74,17 @@ export default {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           }
-        }).then(res => console.log(res))
+        }).then(res => res.json()).then(data => {
+
+          if(data==false){
+            this.badExec=true
+            this.dataExec='Error en la ejecución'
+          }else{
+            this.exec=true
+            this.dataExec=data.status
+          }
+
+        })
       }
     }
   }
@@ -84,6 +103,11 @@ export default {
 
 #buttonPackage button {
   width: 100%;
+}
+
+#resultExec{
+  height: 150px;
+  overflow-y: scroll;
 }
 
 </style>

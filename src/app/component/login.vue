@@ -61,8 +61,6 @@ export default {
               console.log("BAD")
             }
           })
-
-
     }
   }
 }
