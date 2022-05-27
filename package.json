@@ -20,6 +20,7 @@
     "bootstrap-vue": "^2.22.0",
     "bootstrap-vue-3": "^0.1.12",
     "express": "^4.17.3",
+    "formidable": "^2.0.1",
     "md5": "^2.3.0",
     "mongoose": "^6.3.0",
     "morgan": "^1.10.0",

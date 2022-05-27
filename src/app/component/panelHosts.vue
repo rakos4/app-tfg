@@ -1,7 +1,7 @@
 <template>
   <div @updatePanelHosts="updateHosts" class="row">
     <div  id="hosts" class="col-2">
-      <span v-if="this.hosts.length==0">No hay ningún host añadido</span>
+      <span v-if="this.hosts.length===0">No hay ningún host añadido</span>
       <host v-for="h in this.hosts" :name="h.name" :ip="h.ip" @updatePanelHosts="updateHosts"></host>
       <div id="buttonAddHost" class="row">
         <button type="button" class="btn btn-primary" @click="showModal">Add Host</button>
@@ -15,10 +15,10 @@
         <ansible-install label="Install packages"></ansible-install>
       </div>
       <div class="panelsAnsible row">
-        <ansible-install label="Restart services"></ansible-install>
+        <ansible-service></ansible-service>
       </div>
       <div class="panelsAnsible row">
-        <ansible-install label="Create your playbook"></ansible-install>
+        <ansible-custom></ansible-custom>
       </div>
     </div>
   </div>
@@ -28,6 +28,8 @@
 import host from './host.vue';
 import ansibleInstall from "./ansibleInstall.vue";
 import modal from './modal.vue';
+import ansibleService from "./ansibleService.vue";
+import ansibleCustom from "./ansibleCustom.vue";
 
 export default {
   name: "panelHosts",
@@ -58,7 +60,7 @@ export default {
       this.$emit('hostsUpdated')
     },
   },
-  components:{host,ansibleInstall,modal}
+  components:{host,ansibleInstall,modal,ansibleService,ansibleCustom}
 }
 </script>
 

@@ -1,13 +1,13 @@
 const express = require('express');
+const formidable = require('formidable');
 const router = express.Router();
 const User = require('../models/User')
-const mysql = require("mysql");
 const database = require('../models/Database');
 const {execSync} = require("child_process");
-const { spawnSync } = require("child_process");
 const fs = require('fs')
 
 router.post('/login', async (req, res) => {
+
     // creamos un usuario con los valores recibidos del formulario
     const formUser = new User(req.body.username, req.body.password, true);
     //obtenemos el usuario de la base de datos
@@ -45,7 +45,7 @@ router.get('/getHosts', async (req, res) => {
 router.post('/addHost', async (req, res) => {
     console.log(req.body)
     try {
-        const rows = await database('INSERT INTO hosts (name,ip) VALUES("' + req.body.name + '","' + req.body.ip + '")');
+        await database('INSERT INTO hosts (name,ip) VALUES("' + req.body.name + '","' + req.body.ip + '")');
         res.json({
             status: true
         })
@@ -60,7 +60,7 @@ router.post('/addHost', async (req, res) => {
 router.delete('/deleteHost', async (req, res) => {
     console.log("Host a eliminar: " + req.body.ip)
     try {
-        const rows = await database('DELETE FROM hosts where ip="' + req.body.ip + '"')
+        await database('DELETE FROM hosts where ip="' + req.body.ip + '"')
         res.json({
             status: true
         })
@@ -92,7 +92,7 @@ router.post('/installPackages', async (req, res) => {
 
 router.post('/restartServices', async (req, res) => {
 
-    createPlaybook("Restart", req.body)
+    createPlaybook(req.body.mode, req.body.packages)
     var result;
     try{
         var result1 = execSync('ansible-playbook -i hosts.txt -u root playbook.yml',{ encoding: 'utf-8' }).toString();
@@ -101,10 +101,19 @@ router.post('/restartServices', async (req, res) => {
     }catch (e){
         result=false
     }
+
     res.json({
         status:result
     })
 });
+
+router.post('/uploadFile',(req,res)=>{
+    console.log(req.body)
+    res.json({
+        status:true
+    })
+
+})
 
 
 function createPlaybook(mode, packages) {
@@ -114,13 +123,16 @@ function createPlaybook(mode, packages) {
         } catch (e) {
             console.log("Error al eliminar el fichero")
         }
-
-        var service = "    apt";
-        var state = "present";
-        if (mode == "Restart") {
+        var service;
+        var state;
+        if(mode==="Install"){
+            service = "    apt";
+            state = "present";
+        }else{
             service = "    service";
-            state = "stopped";
+            state = mode
         }
+
         fs.appendFileSync("playbook.yml", "---\n", err => console.log(err));
         fs.appendFileSync("playbook.yml", "- hosts: all\n", err => console.log(err));
         fs.appendFileSync("playbook.yml", "  tasks:\n", err => console.log(err));
@@ -136,13 +148,6 @@ function createPlaybook(mode, packages) {
 
 
 }
-
-
-
-
-
-
-
 
 
 
