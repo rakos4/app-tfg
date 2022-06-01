@@ -1,10 +1,21 @@
 const express = require('express');
-const formidable = require('formidable');
 const router = express.Router();
 const User = require('../models/User')
 const database = require('../models/Database');
 const {execSync} = require("child_process");
 const fs = require('fs')
+const multer = require('multer')
+
+const storage = multer.diskStorage({
+    destination:'src/files',
+    filename: function(req, file, callback){
+        callback(null,file.originalname)
+    }
+})
+const upload = multer({
+    storage:storage
+
+})
 
 router.post('/login', async (req, res) => {
 
@@ -107,8 +118,8 @@ router.post('/restartServices', async (req, res) => {
     })
 });
 
-router.post('/uploadFile',(req,res)=>{
-    console.log(req.body)
+router.post('/uploadFile',upload.single('file'),(req,res)=>{
+
     res.json({
         status:true
     })
