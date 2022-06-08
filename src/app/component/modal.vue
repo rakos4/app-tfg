@@ -12,11 +12,11 @@
         <form @submit.prevent="addHost">
           <div class="form-group">
             <label for="name">Name</label>
-            <input v-model="this.name" type="text" class="form-control" id="name" placeholder="Nginx">
+            <input v-model="this.name" type="text" class="form-control" id="name" placeholder="Nginx" required>
           </div>
           <div class="form-group">
             <label for="ip">Ip Address</label>
-            <input v-model="this.ip" type="text" class="form-control" id="ip" placeholder="192.168.1.59">
+            <input v-model="this.ip" type="text" class="form-control" id="ip" placeholder="192.168.1.59" required>
           </div>
         </form>
 
@@ -27,7 +27,7 @@
         <button type="button" class="btn btn-primary" @click="addHost">Add Host</button>
       </div>
       <div v-if="this.error" class="alert alert-danger" role="alert">
-        No se ha podido añadir el host
+        {{this.errorMsg}}
       </div>
 
     </div>
@@ -40,38 +40,78 @@
 const Host = require('../../models/Host')
 export default {
   name: "modal",
-  emits: ['closeModal','updatePanelHosts'],
+  emits: ['closeModal', 'updatePanelHosts'],
   data() {
     return {
-      ip: null,
-      name: null,
-      error:false
+      ip: "",
+      name: "",
+      error: false,
+      errorMsg:"No se ha podido añadir el host"
     }
   },
   methods: {
     //METODO QUE N0TIFICA AL COMPONENTE PADRE (PANELHOSTS) QUE DEBE DE ACTUALIZAR LOS HOSTS
-    updateHosts:function (){
+    updateHosts: function () {
       this.$emit('closeModal');
       this.$emit('updatePanelHosts');
     },
     //METODO QUE ENVIA LA INFORMACION OBTENIDA DEL FORMULARIO AL SERVIDOR PARA AÑADIR UN NUEVO HOST A LA APLICACION
-    addHost: function (){
-      var host = new Host(this.name,this.ip)
-      fetch('/addHost', {
-        method: 'POST',
-        body: JSON.stringify(host),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      }).then(res => res.json())
-          .then(data => {
-            if (data.status) {
-              this.updateHosts();
+    addHost: function () {
+      //se comprueba que los datos introducidos tengan el formato correcto
+      var format = this.checkFormat()
+      if (format === true) {
+        var host = new Host(this.name, this.ip)
+        fetch('/addHost', {
+          method: 'POST',
+          body: JSON.stringify(host),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }).then(res => res.json())
+            .then(data => {
+              if (data.status) {
+                this.updateHosts();
+              } else {
+                this.error = true
+              }
+            })
+      }else{
+        this.error=true
+        this.errorMsg=format
+      }
+
+
+    },
+    checkFormat: function () {
+      var resultado = true;
+
+      // se comprueba si el formato de la IP es correcto
+      if (!this.ip.includes(".") && this.ip.length===0) {
+        resultado = "Formato de la dirección IP incorrecto"
+      } else {
+        // se comprueba si cada numero de la ip está en el rango correcto
+        var ip = this.ip.split(".")
+        if (ip.length !== 4) {
+          resultado = "Formato de la dirección IP incorrecto"
+        } else {
+          var cont = 0
+          for (var num in ip) {
+            if (isNaN(ip[num])) {
+              cont = cont + 1
             } else {
-              this.error=true
+              if (!(ip[num] >= 0 && ip[num] <= 255)) {
+                cont = cont + 1
+              }
             }
-          })
+          }
+          if (cont > 0) resultado = "Formato de la dirección IP incorrecto"
+        }
+      }
+      if (this.name.length === 0) resultado = "El nombre no puede ser nulo"
+
+      return resultado;
+
     }
   }
 }
@@ -121,11 +161,11 @@ input[type=text] {
   border-radius: 5px 5px 5px 5px;
 }
 
-.form-group{
+.form-group {
   margin-top: 10px;
 }
 
-#error{
+#error {
   display: none;
 }
 

@@ -7,6 +7,8 @@ import login from '../app/component/login.vue';
 import dashboard from '../app/component/dashboard.vue';
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+//variable que almacena rutas con componentes para despues utilizarlos en el modulo router
 const routes = [
     {
         path: '/login',
@@ -21,8 +23,8 @@ const routes = [
 
 ]
 
+//objeto que se utiliza para enviar un componente u otro al cliente web
 const router = createRouter({
-
     history: createWebHistory(),
     routes,
 })

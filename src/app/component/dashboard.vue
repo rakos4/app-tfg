@@ -9,11 +9,14 @@
           <h2>{{ this.hora }}</h2>
         </div>
       </div>
-      <div class="col-10">
-        <h1>Titulo</h1>
+      <div id="titulo" class="col-8">
+        <h1>Orquestador de servidores mediante Ansible</h1>
+      </div>
+      <div id="logout" class="col-2">
+        <button type="button" class="btn btn-danger" @click="this.logout">Logout</button>
       </div>
     </div>
-    <panelHosts  @hostsUpdated="this.updateHost=false"></panelHosts>
+    <panelHosts @hostsUpdated="this.updateHost=false"></panelHosts>
   </div>
 </template>
 
@@ -26,9 +29,9 @@ export default {
   name: "dashboard",
   data() {
     return {
-      updateHost:false,
+      updateHost: false,
       hora: null,
-      modalOpen:false
+      modalOpen: false
     }
   },
   // ACTUALIZA LA HORA CADA MINUTO
@@ -42,6 +45,9 @@ export default {
     setHour: function () {
       var date = new Date()
       this.hora = date.getHours() + ":" + date.getMinutes()
+    },
+    logout: function(){
+      this.$router.push('/login')
     }
   },
   components: {host, panelHosts}
@@ -60,9 +66,15 @@ export default {
 }
 
 
-
 button {
   margin-top: 10px;
   padding: 12px;
+}
+
+#logout{
+  text-align: right;
+}
+#titulo{
+  text-align: center;
 }
 </style>

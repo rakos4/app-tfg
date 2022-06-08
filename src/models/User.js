@@ -15,7 +15,7 @@ class User {
 
     compareUser(user){
         var res = false;
-        if(this.username==user.username && this.password == user.password) res = true;
+        if(this.username===user.username && this.password === user.password) res = true;
         return res;
     }
 

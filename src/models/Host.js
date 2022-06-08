@@ -4,5 +4,4 @@ class Host{
         this.ip=ip;
     }
 }
-
 module.exports = Host;

@@ -3,8 +3,7 @@
   <div class="wrapper fadeInDown">
     <div id="formContent">
 
-
-      <!-- Icon -->
+      <!-- Icono -->
       <div class="fadeIn first">
         <img src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Logo_uab.png" id="icon" alt="User Icon"/>
       </div>
@@ -17,9 +16,12 @@
         <input type="submit" class="fadeIn fourth" value="Log In">
       </form>
 
-      <!-- Remind Passowrd -->
-      <div id="formFooter">
-        <a class="underlineHover" href="#">Forgot Password?</a>
+      <!-- Errores -->
+      <div id="error" v-if="this.error" class="col-12 alert alert-danger" role="alert">
+        <button type="button" class="close closeExec"  aria-label="Close" @click="this.error=false">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <p>{{ this.errorMsg }}</p>
       </div>
 
     </div>
@@ -33,6 +35,8 @@ export default {
   data() {
     return {
       isLogged: this.logged,
+      error:false,
+      errorMsg:"Error",
       user: {
         username: '',
         password: '',
@@ -44,22 +48,34 @@ export default {
   methods: {
     //METODO QUE ENVIA AL SERVIDOR LOS DATOS OBTENIDOS DEL FORMULARIO LOGIN
     checkLogin() {
-      fetch('/login', {
-        method: 'POST',
-        body: JSON.stringify(this.user),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      }).then(res => res.json())
-          .then(data => {
-            if (data.status) {
-              console.log("OK")
-              this.$router.push('/dashboard')
-            } else {
-              console.log("BAD")
-            }
-          })
+      if(this.checkFormat()){
+        fetch('/login', {
+          method: 'POST',
+          body: JSON.stringify(this.user),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }).then(res => res.json())
+            .then(data => {
+              if (data.status) {
+                this.$router.push('/dashboard')
+              } else {
+                this.error=true;
+                this.errorMsg="Usuario o contraseña incorrectos."
+              }
+            })
+      }
+
+    },
+    checkFormat(){
+      var resultado = true;
+      if(this.user.username.length===0 || this.user.password.length===0){
+        this.error=true;
+        this.errorMsg="El campo no puede estar vacío."
+        resultado=false;
+      }
+      return resultado;
     }
   }
 }
@@ -345,6 +361,13 @@ input[type=text], input[type=password]:placeholder {
 
 #icon {
   width: 60%;
+}
+
+.closeExec{
+  position: absolute;
+  right: 25px;
+  background: none;
+  border: none;
 }
 
 

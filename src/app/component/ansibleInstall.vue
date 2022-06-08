@@ -112,7 +112,6 @@ export default {
   right: 25px;
   background: none;
   border: none;
-
 }
 
 </style>
