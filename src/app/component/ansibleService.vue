@@ -1,4 +1,5 @@
 <template>
+  <!-- FORMULARIO PARA CAMBIAR EL ESTADO DE LOS SERVICIOS -->
   <form id="servicePackages" class="row ms-auto" @submit.prevent="this.run">
     <label class="form-package sr-only" for="packet">Modify service state</label>
     <div class="form-package col-9">
@@ -44,6 +45,7 @@ export default {
     }
   },
   watch: {
+    //COMPRUEBA QUE EL PAQUETE NO SEA NULO
     packages(newValue) {
       if (newValue.length !== 0){
         this.error = false
@@ -52,6 +54,7 @@ export default {
     }
   },
   methods:{
+    //METODO QUE ENVIA LA INFORMACION AL SERVIDOR CON UNA LLAMADA FETCH
     run: function () {
       if (this.packages.length === 0) {
         this.error = true
@@ -76,9 +79,8 @@ export default {
         })
       }
     },
+    //METODO QUE MUESTRA EL RESULTADO OBTENIDO POR PANTALLA
     showResult:function(data){
-      console.log(data)
-
       if(data.status===false){
         this.error=true
         this.errorMsg="Error al instalar los paquetes"

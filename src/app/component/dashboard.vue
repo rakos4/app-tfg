@@ -31,6 +31,7 @@ export default {
       modalOpen:false
     }
   },
+  // ACTUALIZA LA HORA CADA MINUTO
   created() {
     var date = new Date()
     this.hora = date.getHours() + ":" + date.getMinutes()

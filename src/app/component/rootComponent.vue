@@ -16,8 +16,10 @@ export default {
     }
   },
   created() {
-    //this.$router.push('/login')
-    this.$router.push('/dashboard')
+    //AL INICIAR LA APLICACION ENVIAMOS EL COMPONENTE LOGIN
+    this.$router.push('/login')
+    //this.$router.push('/dashboard')
+
   },
 
   components:{login,dashboard}

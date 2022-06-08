@@ -1,10 +1,8 @@
 <template>
 
-  <!------ Include the above in your HEAD tag ---------->
-
   <div class="wrapper fadeInDown">
     <div id="formContent">
-      <!-- Tabs Titles -->
+
 
       <!-- Icon -->
       <div class="fadeIn first">
@@ -44,6 +42,7 @@ export default {
   props: ['logged'],
   emits: ['statusLogin'],
   methods: {
+    //METODO QUE ENVIA AL SERVIDOR LOS DATOS OBTENIDOS DEL FORMULARIO LOGIN
     checkLogin() {
       fetch('/login', {
         method: 'POST',

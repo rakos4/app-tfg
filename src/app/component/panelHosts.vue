@@ -1,4 +1,5 @@
 <template>
+  <!-- PANALES DE HOSTS -->
   <div @updatePanelHosts="updateHosts" class="row">
     <div  id="hosts" class="col-2">
       <span v-if="this.hosts.length===0">No hay ningún host añadido</span>
@@ -12,7 +13,7 @@
     <!-- Panel ansible -->
     <div class="col-10">
       <div class="panelsAnsible row">
-        <ansible-install label="Install packages"></ansible-install>
+        <ansible-install></ansible-install>
       </div>
       <div class="panelsAnsible row">
         <ansible-service></ansible-service>
@@ -42,9 +43,11 @@ export default {
     }
   },
   created() {
+    //AL CREARSE OBTIENE LOS HOSTS PARA MOSTRARLOS POR PANTALLA
     this.updateHosts()
   },
   methods:{
+    //METODO QUE REALIZA UNA LLAMADA AL SERVIDOR PARA OBTENER LOS HOSTS EN LA APLICACION Y MOSTRARLOS POR PANTALLA
     updateHosts: function (){
       fetch('/getHosts',{
         method:'GET'
@@ -53,6 +56,7 @@ export default {
             this.hosts = data['hosts']
           })
     },
+    //METODO QUE MUESTRA EL FORMULARIO CONTENIDO EN EL MODAL(POP-UP)
     showModal: function (){
       this.modalOpen=!this.modalOpen
       this.updateHost=true;

@@ -1,14 +1,13 @@
 <template>
+  <!-- FORMULARIO PARA INSTALAR PAQUETES -->
   <form id="installPackages" class="row ms-auto" @submit.prevent="this.run">
-    <label class="form-package sr-only" for="packet">{{ this.label }}</label>
+    <label class="form-package sr-only" for="packet">Install packages</label>
     <div class="form-package col-11">
-      <input v-if="this.input" v-model="this.packages" type="text" class="form-control mb-2 mr-sm-2" id="packet"
+      <input v-model="this.packages" type="text" class="form-control mb-2 mr-sm-2" id="packet"
              placeholder="Some packet">
-      <textarea v-if="this.textArea" class="form-control mb-2 mr-sm-2" id="packet" rows="3"></textarea>
-
     </div>
     <div id="buttonPackage" class="col-1">
-      <button type="submit" class="btn btn-primary mb-2">{{this.labelButton}}</button>
+      <button type="submit" class="btn btn-primary mb-2">Install</button>
     </div>
     <div id="errorPackage" v-if="this.error" class="col-12 alert alert-danger" role="alert">
       <button type="button" class="close closeExec"  aria-label="Close" @click="this.error=false">
@@ -29,53 +28,38 @@
 <script>
 export default {
   name: "ansibleInstall",
-  props:['label'],
+
   data() {
     return {
       packages: "",
-      labelButton:"Go",
       error: false,
-      input:false,
-      textArea:false,
       path:"",
       exec:false,
       errorMsg:"",
       dataExec:[]
     }
   },
-  created() {
-    if(this.label=="Install packages"){
-      this.labelButton="Install"
-      this.input=true
-      this.path="/installPackages"
-    }else if(this.label=="Restart services"){
-      this.labelButton="Restart"
-      this.input=true
-      this.path="/restartServices"
-    }else if(this.label=="Create your playbook"){
-      this.labelButton="Run"
-      this.textArea=true
-      this.path="createYourPlaybook"
-    }
-  },
+
   watch: {
-    packages(newValue, oldValue) {
-      if (newValue.length != 0){
+    // COMPRUEBA SI EL CAMPO DE PAQUETES ESTA VACIO
+    packages(newValue) {
+      if (newValue.length !== 0){
         this.error = false
         this.exec=false
       }
     }
   },
   methods: {
+    //METODO QUE ENVIA LA INFORMACIÓN RECIBIDA DEL FORMULARIO AL SERVIDOR MEDIANTE FETCH
     run: function () {
-      if (this.packages.length == 0) {
+      if (this.packages.length === 0) {
         this.error = true
         this.errorMsg="El campo no puede estar vacío";
         this.exec=false
       } else {
         var packagesToInstall = this.packages.split(",");
 
-        fetch(this.path,{
+        fetch('/installPackages',{
           method:'POST',
           body:JSON.stringify(packagesToInstall),
           headers: {
@@ -87,10 +71,9 @@ export default {
         })
       }
     },
+    //METODO PARA MOSTRAR POR PANTALLA EL RESULTADO OBTENIDO
     showResult:function(data){
-      console.log(data)
-
-      if(data.status==false){
+      if(data.status===false){
         this.error=true
         this.errorMsg="Error al instalar los paquetes"
       }else{

@@ -49,10 +49,12 @@ export default {
     }
   },
   methods: {
+    //METODO QUE N0TIFICA AL COMPONENTE PADRE (PANELHOSTS) QUE DEBE DE ACTUALIZAR LOS HOSTS
     updateHosts:function (){
       this.$emit('closeModal');
       this.$emit('updatePanelHosts');
     },
+    //METODO QUE ENVIA LA INFORMACION OBTENIDA DEL FORMULARIO AL SERVIDOR PARA AÑADIR UN NUEVO HOST A LA APLICACION
     addHost: function (){
       var host = new Host(this.name,this.ip)
       fetch('/addHost', {
@@ -65,7 +67,6 @@ export default {
       }).then(res => res.json())
           .then(data => {
             if (data.status) {
-              console.log("Host Added")
               this.updateHosts();
             } else {
               this.error=true
