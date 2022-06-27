@@ -39,14 +39,15 @@ router.get('/getHosts', async (req, res) => {
     const rows = await database('SELECT * FROM hosts');
     try {
         //se elimina el fichero hosts si existe
-        fs.unlinkSync("src/ansible/hosts.txt")
+        //fs.unlinkSync("/etc/ansible/hosts")
+        fs.writeFile('/etc/ansible/hosts','',function (){console.log("done")})
     } catch (e) {
         console.log(e)
     }
     //por cada host que obtenemos de la consulta lo insertamos en el nuevo archivo hosts.txt
     for (host in rows) {
         var ip = rows[host].ip
-        fs.appendFile("src/ansible/hosts.txt", ip + "\n", err => {
+        fs.appendFile("/etc/ansible/hosts", ip + "\n", err => {
             if (err) {
                 console.error(err);
             }
@@ -101,7 +102,7 @@ router.post('/installPackages', async (req, res) => {
     var result;
     // ejecutamos el playbook y devolvemos el resultado al cliente
     try{
-        var result1 = execSync('ansible-playbook -i src/ansible/hosts.txt -u root src/ansible/playbook.yml',{ encoding: 'utf-8' }).toString();
+        var result1 = execSync('ansible-playbook -u root src/ansible/playbook.yml',{ encoding: 'utf-8' }).toString();
         result = result1.toString().split('\n')
 
     }catch (e){
@@ -119,7 +120,7 @@ router.post('/restartServices', async (req, res) => {
     createPlaybook(req.body.mode, req.body.packages)
     var result;
     try{
-        var result1 = execSync('ansible-playbook -i src/ansible/hosts.txt -u root src/ansible/playbook.yml',{ encoding: 'utf-8' }).toString();
+        var result1 = execSync('ansible-playbook  -u root src/ansible/playbook.yml',{ encoding: 'utf-8' }).toString();
         result = result1.toString().split('\n')
 
     }catch (e){
@@ -136,7 +137,7 @@ router.post('/customAnsible',async(req,res) => {
     createPlaybook("custom",req.body.data)
     var result;
     try{
-        var result1 = execSync('ansible-playbook -i src/ansible/hosts.txt -u root src/ansible/playbook.yml',{ encoding: 'utf-8' }).toString();
+        var result1 = execSync('ansible-playbook  -u root src/ansible/playbook.yml',{ encoding: 'utf-8' }).toString();
         result = result1.toString().split('\n')
     }catch (e){
         console.log(e)
